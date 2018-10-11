@@ -61,14 +61,14 @@ def create_employee(employee_name, salary, department_name):
 		  		}}}}
 			}}'''
 	
+	# Remove tabs and line breaks for query to work through client.
+	query = sub('\s+', '', query)
+
 	query = query.format(
 		employee_name=employee_name, 
 		salary=salary, 
 		department_name=department_name
 		)
-
-	# Remove tabs and line breaks for query to work through client.
-	query = sub('\s+', '', query)
 	
 	executed = client.execute(query)
 
