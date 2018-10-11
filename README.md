@@ -12,7 +12,7 @@
  	* In the virtualenv run `python create_dummy_data.py`  
  * Run the GraphQL app  
  	* `python app.py`  
- * The app should be running localhost:5000/graphql  
+ 	* The app should be running at localhost:5000/graphql  
 
 ### Notes:
 
