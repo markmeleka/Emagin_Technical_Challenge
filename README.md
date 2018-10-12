@@ -26,9 +26,8 @@
  		* Doesn't work with "after" argument.  
  	* Go to nth page with the "goToPage" argument.  
  		* Doesn't work with "after" argument.  
- 	* I didn't implement the feature to sort employees department name and department salary in a paginated manner.  
- 		* I need some help with this one.  
- 		* But, I did implement sorting by variable name.  
- 	* It's manually tested. There's probably a lot more edge cases I could have tried and more exception handling I could have written.   
+ 	* Sort by variable name with the "sortBy" argument. ie. sortBy: "department.name"
+ 		* The ability to sort by department salary hasn't been implemented yet.
+ 	* It's manually tested. There's probably many more edge cases I could have tried and exception handling I could have written.   
  		* I started writing tests but stopped.  
  		* I was going to experiment with Snapshot tests but stopped.  
