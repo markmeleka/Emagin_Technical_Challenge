@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from mutations import CreateEmployee, DeleteEmployee
 from objects import DepartmentConnection, EmployeeObject, EmployeeConnection
 from helper_functions import get_arguments
+from models import Department as DepartmentModel
 
 
 class Query(graphene.ObjectType):
@@ -17,14 +18,17 @@ class Query(graphene.ObjectType):
 		go_to_page=graphene.Int(description=("Goes to the page specified. "
 			"'first' argument must be provided.")),
 		sort_by=graphene.String(description=("Sorts results by a given "
-			"employee field.")),
+			"field. Use dot notation. ie. \"employee.name\""
+			" or \"department.name\". Add \" desc\" for descending."
+			" ie. \"employee.salary desc\".")),
 		description=("Provides a list of all employees. Allows for pagination "
 			"and sorting. (Note: obfuscates IDs.)")
 		)
 
 	def resolve_all_employees(self, info, sort_by=None, **args):
-		qs = EmployeeObject.get_query(info).order_by(sort_by).all()
 		arguments = get_arguments(info)
+
+		qs = EmployeeObject.get_query(info).join(DepartmentModel).order_by(sort_by).all()
 
 		if 'first' in arguments.keys() and 'goToPage' in arguments.keys():
 			offset = (int(arguments['first'])*int(arguments['goToPage']) 
