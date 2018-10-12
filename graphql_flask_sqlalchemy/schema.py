@@ -2,11 +2,13 @@ import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
+from sqlalchemy.sql import label
 
 from mutations import CreateEmployee, DeleteEmployee
 from objects import DepartmentConnection, EmployeeObject, EmployeeConnection
 from helper_functions import get_arguments
-from models import Department as DepartmentModel
+from models import db_session, Department as DepartmentModel, Employee as EmployeeModel
 
 
 class Query(graphene.ObjectType):
@@ -20,7 +22,8 @@ class Query(graphene.ObjectType):
 		sort_by=graphene.String(description=("Sorts results by a given "
 			"field. Use dot notation. ie. \"employee.name\""
 			" or \"department.name\". Add \" desc\" for descending."
-			" ie. \"employee.salary desc\".")),
+			" ie. \"employee.salary desc\". Sort by department salary"
+			"with department_salary.")),
 		description=("Provides a list of all employees. Allows for pagination "
 			"and sorting. (Note: obfuscates IDs.)")
 		)
@@ -28,7 +31,40 @@ class Query(graphene.ObjectType):
 	def resolve_all_employees(self, info, sort_by=None, **args):
 		arguments = get_arguments(info)
 
-		qs = EmployeeObject.get_query(info).join(DepartmentModel).order_by(sort_by).all()
+		if sort_by in ['department_salary', 'department_salary desc']:
+			# The method of sorting by department_salary queries 
+			# the entire database instead of just using the specified 
+			# variables in `info`. 
+			# This defeats the purpose of using GraphQL. 
+			# Find a better way.
+			
+			db = db_session()
+
+			dpt_salaries = db.query(
+				EmployeeModel.department_id, 
+				label(
+					'department_salary', 
+					func.avg(EmployeeModel.salary))
+				)
+
+			dpt_salaries = (dpt_salaries
+				.group_by(EmployeeModel.department_id)
+				.subquery())
+
+			qs = (db.query(EmployeeModel)
+				.join(DepartmentModel)
+				.join(
+					dpt_salaries, 
+					EmployeeModel.department_id ==
+						dpt_salaries.c.department_id)
+				.order_by(sort_by)
+				.all())
+
+		else:
+			qs = (EmployeeObject.get_query(info)
+				.join(DepartmentModel)
+				.order_by(sort_by)
+				.all())
 
 		if 'first' in arguments.keys() and 'goToPage' in arguments.keys():
 			offset = (int(arguments['first'])*int(arguments['goToPage']) 
