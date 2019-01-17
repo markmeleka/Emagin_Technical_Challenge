@@ -1,9 +1,9 @@
-## My submission for Emagin's technical challenge.
+## A GraphQL API proof-of-concept
 
 ### Setup:
 
  * Clone the repository  
- 	* `git clone https://github.com/markmeleka/Emagin_Technical_Challenge.git`  
+ 	* `git clone https://github.com/markmeleka/graphql_api_poc.git`  
  * Create virtualenv and install package dependencies in requirements.txt  
  	* `virtualenv env`  
  	* `source env/bin/activate`  
